@@ -22,6 +22,11 @@ import {
   TrendingUp,
   Calendar,
   HelpCircle,
+  Building2,
+  Plus,
+  Eye,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -31,11 +36,35 @@ interface SidebarItem {
   badge?: string;
 }
 
-const sidebarItems: SidebarItem[] = [
+interface SidebarGroup {
+  title: string;
+  icon: React.ComponentType<{ className?: string }>;
+  items: SidebarItem[];
+  badge?: string;
+}
+
+const sidebarItems: (SidebarItem | SidebarGroup)[] = [
   {
     title: 'Dashboard',
     href: '/dashboard',
     icon: LayoutDashboard,
+  },
+  {
+    title: 'Organizations',
+    icon: Building2,
+    badge: '0',
+    items: [
+      {
+        title: 'Create',
+        href: '/dashboard/organizations/create',
+        icon: Plus,
+      },
+      {
+        title: 'View All',
+        href: '/dashboard/organizations',
+        icon: Eye,
+      },
+    ],
   },
   {
     title: 'Users',
@@ -87,11 +116,22 @@ const quickActions = [
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
   const pathname = usePathname();
   const { user, logout } = useAuth();
 
   const toggleSidebar = () => setIsCollapsed(!isCollapsed);
   const toggleMobileSidebar = () => setIsMobileOpen(!isMobileOpen);
+
+  const toggleGroup = (groupTitle: string) => {
+    setExpandedGroups(prev => 
+      prev.includes(groupTitle) 
+        ? prev.filter(title => title !== groupTitle)
+        : [...prev, groupTitle]
+    );
+  };
+
+  const isGroupExpanded = (groupTitle: string) => expandedGroups.includes(groupTitle);
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
@@ -114,14 +154,83 @@ export function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
         <div className="space-y-1">
           {sidebarItems.map((item) => {
-            const isActive = pathname === item.href;
+            // Check if it's a group
+            if ('items' in item) {
+              const group = item as SidebarGroup;
+              const isExpanded = isGroupExpanded(group.title);
+              const hasActiveChild = group.items.some(subItem => pathname === subItem.href);
+
+              return (
+                <div key={group.title}>
+                  <button
+                    onClick={() => toggleGroup(group.title)}
+                    className={cn(
+                      "flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                      hasActiveChild
+                        ? "bg-blue-100 text-blue-700 border-r-2 border-blue-700"
+                        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                    )}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <group.icon className="h-5 w-5" />
+                      {!isCollapsed && (
+                        <div className="flex items-center justify-between flex-1">
+                          <span>{group.title}</span>
+                          {group.badge && (
+                            <span className="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">
+                              {group.badge}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    {!isCollapsed && (
+                      isExpanded ? (
+                        <ChevronDown className="h-4 w-4" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4" />
+                      )
+                    )}
+                  </button>
+                  
+                  {/* Group items */}
+                  {(!isCollapsed && isExpanded) && (
+                    <div className="ml-8 mt-1 space-y-1">
+                      {group.items.map((subItem) => {
+                        const isActive = pathname === subItem.href;
+                        return (
+                          <Link
+                            key={subItem.href}
+                            href={subItem.href}
+                            className={cn(
+                              "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                              isActive
+                                ? "bg-blue-50 text-blue-600"
+                                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                            )}
+                          >
+                            <subItem.icon className="h-4 w-4" />
+                            <span>{subItem.title}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
+            // Regular item
+            const regularItem = item as SidebarItem;
+            const isActive = pathname === regularItem.href;
+            
             return (
               <Link
-                key={item.href}
-                href={item.href}
+                key={regularItem.href}
+                href={regularItem.href}
                 className={cn(
                   "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                   isActive
@@ -129,13 +238,13 @@ export function Sidebar() {
                     : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                 )}
               >
-                <item.icon className="h-5 w-5" />
+                <regularItem.icon className="h-5 w-5" />
                 {!isCollapsed && (
                   <div className="flex items-center justify-between flex-1">
-                    <span>{item.title}</span>
-                    {item.badge && (
+                    <span>{regularItem.title}</span>
+                    {regularItem.badge && (
                       <span className="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">
-                        {item.badge}
+                        {regularItem.badge}
                       </span>
                     )}
                   </div>

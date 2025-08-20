@@ -37,14 +37,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Check if user is authenticated on mount
   useEffect(() => {
     const checkAuth = async () => {
-      const token = Cookies.get('auth_token');
+      const token = Cookies.get('token');
+      console.log('Auth check - Token found:', token ? 'Yes' : 'No');
       if (token) {
         try {
+          console.log('Auth check - Calling getProfile...');
           const response = await superAdminAPI.getProfile();
+          console.log('Auth check - Profile response:', response.user ? 'Success' : 'Failed');
           setUser(response.user);
         } catch (error) {
           console.error('Auth check failed:', error);
-          Cookies.remove('auth_token');
+          Cookies.remove('token');
         }
       }
       setLoading(false);
@@ -58,8 +61,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await superAdminAPI.login(email, password);
       const { token, user: userData } = response;
       
+      console.log('Login response token:', token ? 'Present' : 'Missing');
+      
       // Store token in cookie
-      Cookies.set('auth_token', token, { expires: 1 }); // 1 day
+      Cookies.set('token', token, { expires: 1 }); // 1 day
+      
+      console.log('Token stored, verifying:', Cookies.get('token') ? 'Success' : 'Failed');
       
       // Set user data
       setUser(userData);
@@ -69,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
-    Cookies.remove('auth_token');
+    Cookies.remove('token');
     setUser(null);
   };
 
