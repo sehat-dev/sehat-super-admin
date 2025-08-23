@@ -14,8 +14,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       
       {/* Main content area */}
       <div className="lg:pl-64">
-        <main className="min-h-screen">
-          {children}
+        <main className="min-h-screen p-6">
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
         </main>
       </div>
     </div>

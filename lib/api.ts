@@ -135,6 +135,93 @@ export const superAdminAPI = {
     const response = await api.get('/superadmin/organizations/stats');
     return response.data;
   },
+
+  // Users
+  getAllUsers: async (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+  }) => {
+    const response = await api.get('/superadmin/users', { params });
+    return response.data;
+  },
+
+  searchUsers: async (params?: {
+    search?: string;
+    status?: string;
+    emailVerified?: string;
+    dateFrom?: string;
+    dateTo?: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    const response = await api.get('/superadmin/users/search', { params });
+    return response.data;
+  },
+
+  getUserById: async (id: string) => {
+    const response = await api.get(`/superadmin/users/${id}`);
+    return response.data;
+  },
+
+  getUserStats: async () => {
+    const response = await api.get('/superadmin/users/stats');
+    return response.data;
+  },
+
+  toggleUserStatus: async (id: string) => {
+    const response = await api.patch(`/superadmin/users/${id}/toggle-status`);
+    return response.data;
+  },
+
+  // Doctors
+  getAllDoctors: async (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+    specialization?: string;
+  }) => {
+    const response = await api.get('/superadmin/doctors', { params });
+    return response.data;
+  },
+
+  searchDoctors: async (params?: {
+    search?: string;
+    status?: string;
+    emailVerified?: string;
+    specialization?: string;
+    experienceMin?: number;
+    experienceMax?: number;
+    dateFrom?: string;
+    dateTo?: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    const response = await api.get('/superadmin/doctors/search', { params });
+    return response.data;
+  },
+
+  getDoctorById: async (id: string) => {
+    const response = await api.get(`/superadmin/doctors/${id}`);
+    return response.data;
+  },
+
+  getDoctorStats: async () => {
+    const response = await api.get('/superadmin/doctors/stats');
+    return response.data;
+  },
+
+  getSpecializations: async () => {
+    const response = await api.get('/superadmin/doctors/specializations');
+    return response.data;
+  },
+
+  toggleDoctorStatus: async (id: string) => {
+    const response = await api.patch(`/superadmin/doctors/${id}/toggle-status`);
+    return response.data;
+  },
 };
 
 export default api; 

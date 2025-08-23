@@ -25,8 +25,10 @@ import {
   Building2,
   Plus,
   Eye,
+  Search,
   ChevronDown,
   ChevronRight,
+  Stethoscope,
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -68,9 +70,37 @@ const sidebarItems: (SidebarItem | SidebarGroup)[] = [
   },
   {
     title: 'Users',
-    href: '/dashboard/users',
     icon: Users,
     badge: '0',
+    items: [
+      {
+        title: 'View All',
+        href: '/dashboard/users',
+        icon: Eye,
+      },
+      {
+        title: 'Search',
+        href: '/dashboard/users/search',
+        icon: Search,
+      },
+    ],
+  },
+  {
+    title: 'Doctors',
+    icon: Stethoscope,
+    badge: '0',
+    items: [
+      {
+        title: 'View All',
+        href: '/dashboard/doctors',
+        icon: Eye,
+      },
+      {
+        title: 'Search',
+        href: '/dashboard/doctors/search',
+        icon: Search,
+      },
+    ],
   },
   {
     title: 'Orders',
@@ -134,20 +164,25 @@ export function Sidebar() {
   const isGroupExpanded = (groupTitle: string) => expandedGroups.includes(groupTitle);
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-white border-r border-gray-200">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b">
-        <div className={cn("flex items-center", isCollapsed ? "justify-center" : "space-x-2")}>
-          <Shield className="h-8 w-8 text-blue-600" />
+      <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className={cn("flex items-center", isCollapsed ? "justify-center" : "space-x-3")}>
+          <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg">
+            <Shield className="h-6 w-6 text-white" />
+          </div>
           {!isCollapsed && (
-            <span className="text-xl font-bold text-gray-900">Sehat</span>
+            <div>
+              <span className="text-xl font-bold text-gray-900">Sehat</span>
+              <p className="text-xs text-gray-500">Super Admin</p>
+            </div>
           )}
         </div>
         <Button
           variant="ghost"
           size="sm"
           onClick={toggleSidebar}
-          className="hidden lg:flex"
+          className="hidden lg:flex hover:bg-gray-100"
         >
           <Menu className="h-4 w-4" />
         </Button>
@@ -168,10 +203,10 @@ export function Sidebar() {
                   <button
                     onClick={() => toggleGroup(group.title)}
                     className={cn(
-                      "flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                      "flex items-center justify-between w-full px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
                       hasActiveChild
-                        ? "bg-blue-100 text-blue-700 border-r-2 border-blue-700"
-                        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                        ? "bg-blue-50 text-blue-700 border border-blue-200 shadow-sm"
+                        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                     )}
                   >
                     <div className="flex items-center space-x-3">
@@ -180,7 +215,7 @@ export function Sidebar() {
                         <div className="flex items-center justify-between flex-1">
                           <span>{group.title}</span>
                           {group.badge && (
-                            <span className="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">
+                            <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full font-medium">
                               {group.badge}
                             </span>
                           )}
@@ -189,16 +224,16 @@ export function Sidebar() {
                     </div>
                     {!isCollapsed && (
                       isExpanded ? (
-                        <ChevronDown className="h-4 w-4" />
+                        <ChevronDown className="h-4 w-4 transition-transform duration-200" />
                       ) : (
-                        <ChevronRight className="h-4 w-4" />
+                        <ChevronRight className="h-4 w-4 transition-transform duration-200" />
                       )
                     )}
                   </button>
                   
                   {/* Group items */}
                   {(!isCollapsed && isExpanded) && (
-                    <div className="ml-8 mt-1 space-y-1">
+                    <div className="ml-8 mt-2 space-y-1">
                       {group.items.map((subItem) => {
                         const isActive = pathname === subItem.href;
                         return (
@@ -206,9 +241,9 @@ export function Sidebar() {
                             key={subItem.href}
                             href={subItem.href}
                             className={cn(
-                              "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                              "flex items-center space-x-3 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
                               isActive
-                                ? "bg-blue-50 text-blue-600"
+                                ? "bg-blue-50 text-blue-600 border border-blue-200 shadow-sm"
                                 : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                             )}
                           >
@@ -232,10 +267,10 @@ export function Sidebar() {
                 key={regularItem.href}
                 href={regularItem.href}
                 className={cn(
-                  "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                  "flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
                   isActive
-                    ? "bg-blue-100 text-blue-700 border-r-2 border-blue-700"
-                    : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                    ? "bg-blue-50 text-blue-700 border border-blue-200 shadow-sm"
+                    : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                 )}
               >
                 <regularItem.icon className="h-5 w-5" />
@@ -243,7 +278,7 @@ export function Sidebar() {
                   <div className="flex items-center justify-between flex-1">
                     <span>{regularItem.title}</span>
                     {regularItem.badge && (
-                      <span className="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded-full">
+                      <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full font-medium">
                         {regularItem.badge}
                       </span>
                     )}
@@ -256,8 +291,8 @@ export function Sidebar() {
 
         {/* Quick Actions */}
         {!isCollapsed && (
-          <div className="pt-6 border-t">
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+          <div className="pt-6 border-t border-gray-200">
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 px-4">
               Quick Actions
             </h3>
             <div className="space-y-1">
@@ -268,10 +303,10 @@ export function Sidebar() {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                      "flex items-center space-x-3 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
                       isActive
-                        ? "bg-blue-100 text-blue-700"
-                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                        ? "bg-blue-50 text-blue-700 border border-blue-200 shadow-sm"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     )}
                   >
                     <item.icon className="h-4 w-4" />
@@ -285,10 +320,10 @@ export function Sidebar() {
       </nav>
 
       {/* User Profile */}
-      <div className="p-4 border-t">
+      <div className="p-4 border-t border-gray-200 bg-gray-50">
         <div className={cn("flex items-center", isCollapsed ? "justify-center" : "space-x-3")}>
-          <div className="h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center">
-            <User className="h-4 w-4 text-white" />
+          <div className="h-10 w-10 bg-blue-600 rounded-full flex items-center justify-center">
+            <User className="h-5 w-5 text-white" />
           </div>
           {!isCollapsed && (
             <div className="flex-1 min-w-0">
@@ -307,7 +342,7 @@ export function Sidebar() {
             <Button
               variant="ghost"
               size="sm"
-              className="w-full justify-start text-sm"
+              className="w-full justify-start text-sm hover:bg-gray-100"
               onClick={() => {/* Add profile action */}}
             >
               <User className="h-4 w-4 mr-2" />
@@ -316,7 +351,7 @@ export function Sidebar() {
             <Button
               variant="ghost"
               size="sm"
-              className="w-full justify-start text-sm"
+              className="w-full justify-start text-sm hover:bg-gray-100"
               onClick={() => {/* Add help action */}}
             >
               <HelpCircle className="h-4 w-4 mr-2" />
@@ -350,19 +385,25 @@ export function Sidebar() {
       {/* Mobile sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 bg-white border-r transform transition-transform duration-200 ease-in-out lg:hidden",
+          "fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-200 ease-in-out lg:hidden",
           isMobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex items-center justify-between p-4 border-b">
-          <div className="flex items-center space-x-2">
-            <Shield className="h-8 w-8 text-blue-600" />
-            <span className="text-xl font-bold text-gray-900">Sehat</span>
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg">
+              <Shield className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <span className="text-xl font-bold text-gray-900">Sehat</span>
+              <p className="text-xs text-gray-500">Super Admin</p>
+            </div>
           </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={toggleMobileSidebar}
+            className="hover:bg-gray-100"
           >
             <X className="h-4 w-4" />
           </Button>
@@ -373,7 +414,7 @@ export function Sidebar() {
       {/* Desktop sidebar */}
       <div
         className={cn(
-          "hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:z-50 lg:bg-white lg:border-r",
+          "hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:z-50 lg:bg-white lg:border-r lg:border-gray-200",
           isCollapsed && "lg:w-16"
         )}
       >
@@ -386,7 +427,7 @@ export function Sidebar() {
           variant="outline"
           size="sm"
           onClick={toggleMobileSidebar}
-          className="bg-white"
+          className="bg-white shadow-lg border-gray-200"
         >
           <Menu className="h-4 w-4" />
         </Button>
