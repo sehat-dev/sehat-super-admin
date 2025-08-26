@@ -54,7 +54,6 @@ const step3Schema = z.object({
 const step4Schema = z.object({
   maxUsers: z.number().min(1, 'Must have at least 1 user'),
   maxDoctors: z.number().min(1, 'Must have at least 1 doctor'),
-  subscriptionPlan: z.enum(['basic', 'premium', 'enterprise']),
 });
 
 const step5Schema = z.object({
@@ -79,7 +78,7 @@ const steps = [
   { id: 1, title: 'Basic Information', description: 'Organization ID and name' },
   { id: 2, title: 'Contact Details', description: 'Email and phone number' },
   { id: 3, title: 'Address', description: 'Physical address' },
-  { id: 4, title: 'Capacity & Plan', description: 'User limits and subscription' },
+  { id: 4, title: 'Capacity', description: 'User and doctor limits' },
   { id: 5, title: 'Security', description: 'Admin password' },
 ];
 
@@ -126,7 +125,6 @@ export default function CreateOrganizationPage() {
     defaultValues: {
       maxUsers: formData.maxUsers || 10,
       maxDoctors: formData.maxDoctors || 5,
-      subscriptionPlan: formData.subscriptionPlan || 'basic',
     },
   });
 
@@ -168,9 +166,8 @@ export default function CreateOrganizationPage() {
     step4Form.reset({
       maxUsers: formData.maxUsers || 10,
       maxDoctors: formData.maxDoctors || 5,
-      subscriptionPlan: formData.subscriptionPlan || 'basic',
     });
-  }, [formData.maxUsers, formData.maxDoctors, formData.subscriptionPlan]);
+  }, [formData.maxUsers, formData.maxDoctors]);
 
   useEffect(() => {
     step5Form.reset({
@@ -284,7 +281,6 @@ export default function CreateOrganizationPage() {
         },
         maxUsers: finalData.maxUsers!,
         maxDoctors: finalData.maxDoctors!,
-        subscriptionPlan: finalData.subscriptionPlan,
       };
       
       console.log('Organization data being sent:', { ...organizationData, password: '***' }); // Debug log
@@ -517,23 +513,7 @@ export default function CreateOrganizationPage() {
               </div>
             </div>
 
-            <div>
-              <Label htmlFor="subscriptionPlan">Subscription Plan *</Label>
-              <select
-                id="subscriptionPlan"
-                {...step4Form.register('subscriptionPlan')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="basic">Basic - $99/month</option>
-                <option value="premium">Premium - $199/month</option>
-                <option value="enterprise">Enterprise - $399/month</option>
-              </select>
-              {step4Form.formState.errors.subscriptionPlan && (
-                <p className="text-sm text-red-500 mt-1">
-                  {step4Form.formState.errors.subscriptionPlan.message}
-                </p>
-              )}
-            </div>
+
           </div>
         );
 

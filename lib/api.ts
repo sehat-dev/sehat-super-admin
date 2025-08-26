@@ -19,8 +19,6 @@ interface OrganizationData {
   };
   maxUsers: number;
   maxDoctors: number;
-  subscriptionPlan?: string;
-  subscriptionExpiry?: string;
 }
 
 interface OrganizationUpdateData {
@@ -36,8 +34,6 @@ interface OrganizationUpdateData {
   };
   maxUsers?: number;
   maxDoctors?: number;
-  subscriptionPlan?: string;
-  subscriptionExpiry?: string;
 }
 
 const api = axios.create({

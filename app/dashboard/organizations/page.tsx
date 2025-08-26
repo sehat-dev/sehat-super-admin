@@ -47,8 +47,6 @@ interface Organization {
   currentUsers: number;
   currentDoctors: number;
   isActive: boolean;
-  subscriptionPlan: string;
-  subscriptionExpiry?: string;
   createdAt: string;
 }
 
@@ -127,22 +125,7 @@ export default function OrganizationsPage() {
     return null;
   }
 
-  const getSubscriptionPlanColor = (plan: string) => {
-    switch (plan) {
-      case 'basic':
-        return 'bg-gray-100 text-gray-800';
-      case 'premium':
-        return 'bg-blue-100 text-blue-800';
-      case 'enterprise':
-        return 'bg-purple-100 text-purple-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
 
-  const getSubscriptionPlanLabel = (plan: string) => {
-    return plan.charAt(0).toUpperCase() + plan.slice(1);
-  };
 
   const filteredOrganizations = organizations.filter(org => {
     const matchesSearch = org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -241,17 +224,7 @@ export default function OrganizationsPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Premium Plans</CardTitle>
-              <UserCheck className="h-4 w-4 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">
-                {organizations.filter(org => org.subscriptionPlan === 'premium' || org.subscriptionPlan === 'enterprise').length}
-              </div>
-            </CardContent>
-          </Card>
+
         </div>
 
         {/* Filters and Search */}
@@ -332,9 +305,7 @@ export default function OrganizationsPage() {
                             <Badge variant={org.isActive ? "default" : "secondary"}>
                               {org.isActive ? 'Active' : 'Inactive'}
                             </Badge>
-                            <Badge className={getSubscriptionPlanColor(org.subscriptionPlan)}>
-                              {getSubscriptionPlanLabel(org.subscriptionPlan)}
-                            </Badge>
+
                           </div>
                           <p className="text-sm text-gray-600 mb-2">ID: {org.organizationId}</p>
                           
