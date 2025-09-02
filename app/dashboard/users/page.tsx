@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/lib/auth-context';
+import { useState, useEffect, useCallback } from 'react';
 import { superAdminAPI } from '@/lib/api';
 import { DashboardLayout } from '@/components/layout/dashboard-layout';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,6 @@ import { Badge } from '@/components/ui/badge';
 import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { 
   Search, 
-  Filter, 
   RefreshCw, 
   Eye, 
   UserCheck, 
@@ -19,8 +17,12 @@ import {
   Mail,
   Phone,
   Calendar,
-  Hash
+  Hash,
+  Users,
+  Shield,
+  Activity
 } from 'lucide-react';
+import Link from 'next/link';
 
 interface User {
   _id: string;
@@ -43,7 +45,6 @@ interface Pagination {
 }
 
 export default function UsersPage() {
-  const { user } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [loading, setLoading] = useState(true);
@@ -59,10 +60,10 @@ export default function UsersPage() {
     recentUsers: 0,
   });
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
-      const params: any = {
+      const params: Record<string, string | number> = {
         page: currentPage,
         limit: 10,
       };
@@ -83,7 +84,7 @@ export default function UsersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, searchTerm, statusFilter]);
 
   const fetchStats = async () => {
     try {
@@ -108,7 +109,7 @@ export default function UsersPage() {
   useEffect(() => {
     fetchUsers();
     fetchStats();
-  }, [currentPage, searchTerm, statusFilter]);
+  }, [currentPage, searchTerm, statusFilter, fetchUsers]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -118,31 +119,21 @@ export default function UsersPage() {
     });
   };
 
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
   const breadcrumbItems = [
-    { label: 'Users' }
+    { label: 'Users', href: '/dashboard/users' }
   ];
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="p-6">
         {/* Breadcrumbs */}
-        <Breadcrumb items={breadcrumbItems} />
+        <Breadcrumb items={breadcrumbItems} className="mb-6" />
 
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Users</h1>
-            <p className="text-gray-600">Manage and view all users in the system</p>
+            <p className="text-gray-600 mt-2">Manage and view all users in the system</p>
           </div>
           <Button onClick={() => { fetchUsers(); fetchStats(); }} variant="outline">
             <RefreshCw className="h-4 w-4 mr-2" />
@@ -151,77 +142,65 @@ export default function UsersPage() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-6">
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-2">
-                <UserCheck className="h-5 w-5 text-green-600" />
-                <div>
-                  <p className="text-sm text-gray-600">Total Users</p>
-                  <p className="text-2xl font-bold">{stats.totalUsers}</p>
-                </div>
-              </div>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalUsers}</div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-2">
-                <UserCheck className="h-5 w-5 text-blue-600" />
-                <div>
-                  <p className="text-sm text-gray-600">Active Users</p>
-                  <p className="text-2xl font-bold">{stats.activeUsers}</p>
-                </div>
-              </div>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+              <UserCheck className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">{stats.activeUsers}</div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-2">
-                <UserX className="h-5 w-5 text-red-600" />
-                <div>
-                  <p className="text-sm text-gray-600">Inactive Users</p>
-                  <p className="text-2xl font-bold">{stats.inactiveUsers}</p>
-                </div>
-              </div>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Inactive Users</CardTitle>
+              <UserX className="h-4 w-4 text-red-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-600">{stats.inactiveUsers}</div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-2">
-                <Mail className="h-5 w-5 text-green-600" />
-                <div>
-                  <p className="text-sm text-gray-600">Verified</p>
-                  <p className="text-2xl font-bold">{stats.verifiedUsers}</p>
-                </div>
-              </div>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Verified</CardTitle>
+              <Shield className="h-4 w-4 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-600">{stats.verifiedUsers}</div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-2">
-                <Mail className="h-5 w-5 text-yellow-600" />
-                <div>
-                  <p className="text-sm text-gray-600">Unverified</p>
-                  <p className="text-2xl font-bold">{stats.unverifiedUsers}</p>
-                </div>
-              </div>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Unverified</CardTitle>
+              <Mail className="h-4 w-4 text-yellow-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-yellow-600">{stats.unverifiedUsers}</div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-2">
-                <Calendar className="h-5 w-5 text-purple-600" />
-                <div>
-                  <p className="text-sm text-gray-600">Recent (30d)</p>
-                  <p className="text-2xl font-bold">{stats.recentUsers}</p>
-                </div>
-              </div>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Recent (30d)</CardTitle>
+              <Activity className="h-4 w-4 text-purple-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-purple-600">{stats.recentUsers}</div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Filters */}
-        <Card>
+        {/* Filters and Search */}
+        <Card className="mb-6">
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
@@ -333,9 +312,11 @@ export default function UsersPage() {
                               >
                                 {user.isActive ? 'Deactivate' : 'Activate'}
                               </Button>
-                              <Button size="sm" variant="ghost">
-                                <Eye className="h-4 w-4" />
-                              </Button>
+                              <Link href={`/dashboard/users/${user._id}`}>
+                                <Button size="sm" variant="outline">
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </Link>
                             </div>
                           </td>
                         </tr>

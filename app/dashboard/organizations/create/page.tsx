@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { LogoUploadModal } from '@/components/ui/logo-upload-modal';
 import { 
   Building2, 
   ArrowLeft, 
@@ -19,9 +20,10 @@ import {
   Check,
   Eye,
   EyeOff,
-  Loader2
+  Loader2,
+  Image as ImageIcon
 } from 'lucide-react';
-import Link from 'next/link';
+
 import { superAdminAPI } from '@/lib/api';
 
 // Step-by-step form schemas
@@ -75,7 +77,7 @@ type Step5Data = z.infer<typeof step5Schema>;
 interface FormData extends Step1Data, Step2Data, Step3Data, Step4Data, Step5Data {}
 
 const steps = [
-  { id: 1, title: 'Basic Information', description: 'Organization ID and name' },
+  { id: 1, title: 'Basic Information', description: 'Organization ID, name, and logo' },
   { id: 2, title: 'Contact Details', description: 'Email and phone number' },
   { id: 3, title: 'Address', description: 'Physical address' },
   { id: 4, title: 'Capacity', description: 'User and doctor limits' },
@@ -90,6 +92,7 @@ export default function CreateOrganizationPage() {
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showLogoModal, setShowLogoModal] = useState(false);
 
   // Initialize forms with current form data
   const step1Form = useForm<Step1Data>({
@@ -178,6 +181,11 @@ export default function CreateOrganizationPage() {
 
   const updateFormData = (data: Partial<FormData>) => {
     setFormData(prev => ({ ...prev, ...data }));
+  };
+
+  const handleLogoSelected = (logoUrl: string) => {
+    updateFormData({ logo: logoUrl });
+    step1Form.setValue('logo', logoUrl);
   };
 
   const nextStep = async () => {
@@ -340,14 +348,57 @@ export default function CreateOrganizationPage() {
             </div>
 
             <div>
-              <Label htmlFor="logo">Logo URL (Optional)</Label>
-              <Input
-                id="logo"
-                placeholder="https://example.com/logo.png"
-                {...step1Form.register('logo')}
-              />
-              <p className="text-sm text-gray-500 mt-1">
-                Provide a URL to your organization&apos;s logo
+              <Label>Organization Logo</Label>
+              <div className="mt-2">
+                {formData.logo ? (
+                  <div className="flex items-center space-x-4">
+                    <div className="relative">
+                      <img 
+                        src={formData.logo} 
+                        alt="Organization logo" 
+                        className="w-20 h-20 object-cover rounded-lg border-2 border-gray-200"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowLogoModal(true)}
+                        className="absolute -top-2 -right-2 h-6 w-6 p-0 rounded-full"
+                      >
+                        <ImageIcon className="h-3 w-3" />
+                      </Button>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-600">Logo uploaded successfully</p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowLogoModal(true)}
+                      >
+                        Change Logo
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowLogoModal(true)}
+                      className="w-full py-8 border-dashed border-2 border-gray-300 hover:border-gray-400"
+                    >
+                      <div className="flex flex-col items-center space-y-2">
+                        <ImageIcon className="h-8 w-8 text-gray-400" />
+                        <span className="text-sm font-medium text-gray-600">Upload Logo</span>
+                        <span className="text-xs text-gray-500">Click to select or drag and drop</span>
+                      </div>
+                    </Button>
+                  </div>
+                )}
+              </div>
+              <p className="text-sm text-gray-500 mt-2">
+                Upload a 1:1 aspect ratio logo for your organization. Recommended size: 400x400 pixels.
               </p>
             </div>
           </div>
@@ -512,8 +563,6 @@ export default function CreateOrganizationPage() {
                 )}
               </div>
             </div>
-
-
           </div>
         );
 
@@ -610,12 +659,7 @@ export default function CreateOrganizationPage() {
 
         {/* Page Header */}
         <div className="flex items-center space-x-4 mb-6">
-          <Link href="/dashboard/organizations">
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Organizations
-            </Button>
-          </Link>
+          
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Create Organization</h1>
             <p className="text-gray-600 mt-2">
@@ -716,6 +760,14 @@ export default function CreateOrganizationPage() {
             </form>
           </CardContent>
         </Card>
+
+        {/* Logo Upload Modal */}
+        <LogoUploadModal
+          isOpen={showLogoModal}
+          onClose={() => setShowLogoModal(false)}
+          onLogoSelected={handleLogoSelected}
+          currentLogo={formData.logo}
+        />
       </div>
     </DashboardLayout>
   );

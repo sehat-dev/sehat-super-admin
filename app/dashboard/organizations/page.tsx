@@ -22,7 +22,9 @@ import {
   Phone,
   MapPin,
   Users,
-  UserCheck
+  Calendar,
+  Hash,
+
 } from 'lucide-react';
 import Link from 'next/link';
 import { superAdminAPI } from '@/lib/api';
@@ -125,8 +127,6 @@ export default function OrganizationsPage() {
     return null;
   }
 
-
-
   const filteredOrganizations = organizations.filter(org => {
     const matchesSearch = org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          org.organizationId.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -224,7 +224,17 @@ export default function OrganizationsPage() {
             </CardContent>
           </Card>
 
-
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+              <Users className="h-4 w-4 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-600">
+                {organizations.reduce((sum, org) => sum + org.currentUsers, 0)}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Filters and Search */}
@@ -235,7 +245,7 @@ export default function OrganizationsPage() {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <Input
-                    placeholder="Search organizations..."
+                    placeholder="Search organizations by name, ID, or email..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -261,7 +271,7 @@ export default function OrganizationsPage() {
           </CardContent>
         </Card>
 
-        {/* Organizations List */}
+        {/* Organizations Table */}
         <Card>
           <CardHeader>
             <CardTitle>All Organizations</CardTitle>
@@ -288,62 +298,103 @@ export default function OrganizationsPage() {
                 </Link>
               </div>
             ) : (
-              <div className="space-y-4">
-                {filteredOrganizations.map((org) => (
-                  <div
-                    key={org.id}
-                    className="border rounded-lg p-6 hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start space-x-4">
-                        <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <Building2 className="h-6 w-6 text-blue-600" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <h3 className="text-lg font-semibold text-gray-900">{org.name}</h3>
-                            <Badge variant={org.isActive ? "default" : "secondary"}>
-                              {org.isActive ? 'Active' : 'Inactive'}
-                            </Badge>
-
-                          </div>
-                          <p className="text-sm text-gray-600 mb-2">ID: {org.organizationId}</p>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-                            <div className="flex items-center space-x-2">
-                              <Mail className="h-4 w-4 text-gray-400" />
-                              <span>{org.email}</span>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 px-4 font-medium text-gray-900">Organization</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-900">Contact</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-900">Location</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-900">Capacity</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-900">Status</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-900">Created</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-900">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {filteredOrganizations.map((org) => (
+                      <tr key={org.id} className="hover:bg-gray-50">
+                        <td className="py-4 px-4">
+                          <div className="flex items-center space-x-3">
+                            <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                              {org.logo ? (
+                                <img 
+                                  src={org.logo} 
+                                  alt={org.name} 
+                                  className="h-10 w-10 object-cover rounded-lg"
+                                />
+                              ) : (
+                                <Building2 className="h-5 w-5 text-blue-600" />
+                              )}
                             </div>
-                            <div className="flex items-center space-x-2">
-                              <Phone className="h-4 w-4 text-gray-400" />
-                              <span>{org.phoneNumber}</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <MapPin className="h-4 w-4 text-gray-400" />
-                              <span>{org.address.city}, {org.address.state}</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Users className="h-4 w-4 text-gray-400" />
-                              <span>{org.currentUsers}/{org.maxUsers} users</span>
+                            <div>
+                              <div className="font-medium text-gray-900">{org.name}</div>
+                              <div className="flex items-center space-x-1 text-sm text-gray-500">
+                                <Hash className="h-3 w-3" />
+                                <span>{org.organizationId}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2">
-                        <Button variant="outline" size="sm">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                        </td>
+                        <td className="py-4 px-4">
+                          <div className="space-y-1">
+                            <div className="flex items-center space-x-2 text-sm">
+                              <Mail className="h-3 w-3 text-gray-400" />
+                              <span className="text-gray-900">{org.email}</span>
+                            </div>
+                            <div className="flex items-center space-x-2 text-sm">
+                              <Phone className="h-3 w-3 text-gray-400" />
+                              <span className="text-gray-600">{org.phoneNumber}</span>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-4 px-4">
+                          <div className="flex items-center space-x-2 text-sm text-gray-600">
+                            <MapPin className="h-3 w-3 text-gray-400" />
+                            <span>{org.address.city}, {org.address.state}</span>
+                          </div>
+                        </td>
+                        <td className="py-4 px-4">
+                          <div className="space-y-1">
+                            <div className="flex items-center space-x-2 text-sm">
+                              <Users className="h-3 w-3 text-gray-400" />
+                              <span className="text-gray-900">{org.currentUsers}/{org.maxUsers}</span>
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {Math.round((org.currentUsers / org.maxUsers) * 100)}% used
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-4 px-4">
+                          <Badge variant={org.isActive ? "default" : "secondary"}>
+                            {org.isActive ? 'Active' : 'Inactive'}
+                          </Badge>
+                        </td>
+                        <td className="py-4 px-4">
+                          <div className="flex items-center space-x-2 text-sm text-gray-600">
+                            <Calendar className="h-3 w-3 text-gray-400" />
+                            <span>{new Date(org.createdAt).toLocaleDateString()}</span>
+                          </div>
+                        </td>
+                        <td className="py-4 px-4">
+                          <div className="flex items-center space-x-2">
+                            <Link href={`/dashboard/organizations/${org.id}`}>
+                              <Button variant="outline" size="sm">
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                            <Button variant="outline" size="sm">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </CardContent>
