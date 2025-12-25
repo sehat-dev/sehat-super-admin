@@ -1,7 +1,8 @@
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import axios from "axios";
+import Cookies from "js-cookie";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1';
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api/v1";
 
 interface OrganizationData {
   organizationId: string;
@@ -39,17 +40,25 @@ interface OrganizationUpdateData {
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 // Request interceptor to add JWT token
 api.interceptors.request.use((config) => {
-  const token = Cookies.get('token');
-  console.log('API Request to:', config.url, 'Token:', token ? 'Present' : 'Missing');
+  const token = Cookies.get("token");
+  console.log(
+    "API Request to:",
+    config.url,
+    "Token:",
+    token ? "Present" : "Missing"
+  );
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
-    console.log('Authorization header set:', config.headers.Authorization?.substring(0, 20) + '...');
+    console.log(
+      "Authorization header set:",
+      config.headers.Authorization?.substring(0, 20) + "..."
+    );
   }
   return config;
 });
@@ -59,10 +68,10 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      console.log('401 error detected, redirecting to login');
+      console.log("401 error detected, redirecting to login");
       // Clear token and redirect to login page
-      Cookies.remove('token');
-      window.location.href = '/login';
+      Cookies.remove("token");
+      window.location.href = "/login";
     }
     return Promise.reject(error);
   }
@@ -71,29 +80,35 @@ api.interceptors.response.use(
 export const superAdminAPI = {
   // Authentication
   login: async (email: string, password: string) => {
-    const response = await api.post('/superadmin/auth/login', { email, password });
+    const response = await api.post("/superadmin/auth/login", {
+      email,
+      password,
+    });
     return response.data;
   },
-  
+
   getProfile: async () => {
-    const response = await api.get('/superadmin/auth/profile');
+    const response = await api.get("/superadmin/auth/profile");
     return response.data;
   },
 
   // Dashboard
   getOverview: async () => {
-    const response = await api.get('/superadmin/dashboard/overview');
+    const response = await api.get("/superadmin/dashboard/overview");
     return response.data;
   },
 
   getStats: async () => {
-    const response = await api.get('/superadmin/dashboard/stats');
+    const response = await api.get("/superadmin/dashboard/stats");
     return response.data;
   },
 
   // Organizations
   createOrganization: async (organizationData: OrganizationData) => {
-    const response = await api.post('/superadmin/organizations', organizationData);
+    const response = await api.post(
+      "/superadmin/organizations",
+      organizationData
+    );
     return response.data;
   },
 
@@ -103,7 +118,7 @@ export const superAdminAPI = {
     search?: string;
     status?: string;
   }) => {
-    const response = await api.get('/superadmin/organizations', { params });
+    const response = await api.get("/superadmin/organizations", { params });
     return response.data;
   },
 
@@ -112,8 +127,14 @@ export const superAdminAPI = {
     return response.data;
   },
 
-  updateOrganization: async (id: string, updateData: OrganizationUpdateData) => {
-    const response = await api.put(`/superadmin/organizations/${id}`, updateData);
+  updateOrganization: async (
+    id: string,
+    updateData: OrganizationUpdateData
+  ) => {
+    const response = await api.put(
+      `/superadmin/organizations/${id}`,
+      updateData
+    );
     return response.data;
   },
 
@@ -123,12 +144,14 @@ export const superAdminAPI = {
   },
 
   toggleOrganizationStatus: async (id: string) => {
-    const response = await api.patch(`/superadmin/organizations/${id}/toggle-status`);
+    const response = await api.patch(
+      `/superadmin/organizations/${id}/toggle-status`
+    );
     return response.data;
   },
 
   getOrganizationStats: async () => {
-    const response = await api.get('/superadmin/organizations/stats');
+    const response = await api.get("/superadmin/organizations/stats");
     return response.data;
   },
 
@@ -139,7 +162,7 @@ export const superAdminAPI = {
     search?: string;
     status?: string;
   }) => {
-    const response = await api.get('/superadmin/users', { params });
+    const response = await api.get("/superadmin/users", { params });
     return response.data;
   },
 
@@ -152,7 +175,7 @@ export const superAdminAPI = {
     page?: number;
     limit?: number;
   }) => {
-    const response = await api.get('/superadmin/users/search', { params });
+    const response = await api.get("/superadmin/users/search", { params });
     return response.data;
   },
 
@@ -162,7 +185,7 @@ export const superAdminAPI = {
   },
 
   getUserStats: async () => {
-    const response = await api.get('/superadmin/users/stats');
+    const response = await api.get("/superadmin/users/stats");
     return response.data;
   },
 
@@ -179,7 +202,7 @@ export const superAdminAPI = {
     status?: string;
     specialization?: string;
   }) => {
-    const response = await api.get('/superadmin/doctors', { params });
+    const response = await api.get("/superadmin/doctors", { params });
     return response.data;
   },
 
@@ -195,7 +218,7 @@ export const superAdminAPI = {
     page?: number;
     limit?: number;
   }) => {
-    const response = await api.get('/superadmin/doctors/search', { params });
+    const response = await api.get("/superadmin/doctors/search", { params });
     return response.data;
   },
 
@@ -205,12 +228,12 @@ export const superAdminAPI = {
   },
 
   getDoctorStats: async () => {
-    const response = await api.get('/superadmin/doctors/stats');
+    const response = await api.get("/superadmin/doctors/stats");
     return response.data;
   },
 
   getSpecializations: async () => {
-    const response = await api.get('/superadmin/doctors/specializations');
+    const response = await api.get("/superadmin/doctors/specializations");
     return response.data;
   },
 
@@ -218,6 +241,50 @@ export const superAdminAPI = {
     const response = await api.patch(`/superadmin/doctors/${id}/toggle-status`);
     return response.data;
   },
+
+  // Bookings
+  getAllBookings: async (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+    serviceType?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }) => {
+    const response = await api.get("/superadmin/bookings", { params });
+    return response.data;
+  },
+
+  getBookingById: async (id: string) => {
+    const response = await api.get(`/superadmin/bookings/${id}`);
+    return response.data;
+  },
+
+  updateBookingStatus: async (id: string, status: string, reason?: string) => {
+    const response = await api.patch(`/superadmin/bookings/${id}/status`, {
+      status,
+      reason,
+    });
+    return response.data;
+  },
+
+  cancelBooking: async (id: string, reason?: string) => {
+    const response = await api.patch(`/superadmin/bookings/${id}/cancel`, {
+      reason,
+    });
+    return response.data;
+  },
+
+  getBookingStats: async () => {
+    const response = await api.get("/superadmin/bookings/stats");
+    return response.data;
+  },
+
+  deleteBooking: async (id: string) => {
+    const response = await api.delete(`/superadmin/bookings/${id}`);
+    return response.data;
+  },
 };
 
-export default api; 
+export default api;
