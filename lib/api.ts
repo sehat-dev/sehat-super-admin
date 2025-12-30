@@ -285,6 +285,36 @@ export const superAdminAPI = {
     const response = await api.delete(`/superadmin/bookings/${id}`);
     return response.data;
   },
+
+  // CMS Content
+  getAllCMSContent: async (params?: {
+    contentType?: string;
+    isActive?: boolean;
+  }) => {
+    const response = await api.get("/superadmin/cms", { params });
+    return response.data;
+  },
+
+  getCMSContentById: async (id: string) => {
+    const response = await api.get(`/superadmin/cms/${id}`);
+    return response.data;
+  },
+
+  createCMSContent: async (contentData: any) => {
+    const response = await api.post("/superadmin/cms", contentData);
+    return response.data;
+  },
+
+  updateCMSContent: async (id: string, updateData: any) => {
+    const response = await api.patch(`/superadmin/cms/${id}`, updateData);
+    return response.data;
+  },
+
+  deleteCMSContent: async (id: string) => {
+    const response = await api.delete(`/superadmin/cms/${id}`);
+    return response.data;
+  },
+
 };
 
 export default api;

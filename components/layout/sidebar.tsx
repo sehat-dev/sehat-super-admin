@@ -104,7 +104,11 @@ const sidebarItems: (SidebarItem | SidebarGroup)[] = [
     href: "/dashboard/bookings",
     icon: Calendar,
   },
-
+  {
+    title: "CMS",
+    href: "/dashboard/cms",
+    icon: FileText,
+  },
   {
     title: "Reports",
     href: "/dashboard/reports",
