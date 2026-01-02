@@ -29,6 +29,7 @@ import {
   ChevronDown,
   ChevronRight,
   Stethoscope,
+  Package,
 } from "lucide-react";
 
 interface SidebarItem {
@@ -108,6 +109,16 @@ const sidebarItems: (SidebarItem | SidebarGroup)[] = [
     title: "CMS",
     href: "/dashboard/cms",
     icon: FileText,
+  },
+  {
+    title: "Service Packages",
+    href: "/dashboard/service-packages",
+    icon: ShoppingCart,
+  },
+  {
+    title: "Services",
+    href: "/dashboard/services",
+    icon: Package,
   },
   {
     title: "Reports",

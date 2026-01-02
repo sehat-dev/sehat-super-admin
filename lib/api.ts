@@ -315,6 +315,87 @@ export const superAdminAPI = {
     return response.data;
   },
 
+  // Service Packages
+  getAllServicePackages: async (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    serviceType?: string;
+    category?: string;
+    isActive?: boolean;
+  }) => {
+    const response = await api.get("/superadmin/service-packages", { params });
+    return response.data;
+  },
+
+  getServicePackageById: async (id: string) => {
+    const response = await api.get(`/superadmin/service-packages/${id}`);
+    return response.data;
+  },
+
+  createServicePackage: async (packageData: any) => {
+    const response = await api.post("/superadmin/service-packages", packageData);
+    return response.data;
+  },
+
+  updateServicePackage: async (id: string, updateData: any) => {
+    const response = await api.put(`/superadmin/service-packages/${id}`, updateData);
+    return response.data;
+  },
+
+  deleteServicePackage: async (id: string) => {
+    const response = await api.delete(`/superadmin/service-packages/${id}`);
+    return response.data;
+  },
+
+  toggleServicePackageStatus: async (id: string) => {
+    const response = await api.patch(`/superadmin/service-packages/${id}/toggle-status`);
+    return response.data;
+  },
+
+  // Services (Individual services with pricing)
+  getAllServices: async (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    serviceType?: string;
+    category?: string;
+    isActive?: boolean;
+  }) => {
+    const response = await api.get("/superadmin/services", { params });
+    return response.data;
+  },
+
+  getServiceById: async (id: string) => {
+    const response = await api.get(`/superadmin/services/${id}`);
+    return response.data;
+  },
+
+  createService: async (serviceData: any) => {
+    const response = await api.post("/superadmin/services", serviceData);
+    return response.data;
+  },
+
+  updateService: async (id: string, updateData: any) => {
+    const response = await api.put(`/superadmin/services/${id}`, updateData);
+    return response.data;
+  },
+
+  bulkUpdateServices: async (updates: Array<{ serviceId: string; price: number; originalPrice?: number }>) => {
+    const response = await api.post("/superadmin/services/bulk-update", { updates });
+    return response.data;
+  },
+
+  deleteService: async (id: string) => {
+    const response = await api.delete(`/superadmin/services/${id}`);
+    return response.data;
+  },
+
+  toggleServiceStatus: async (id: string) => {
+    const response = await api.patch(`/superadmin/services/${id}/toggle-status`);
+    return response.data;
+  },
+
 };
 
 export default api;
