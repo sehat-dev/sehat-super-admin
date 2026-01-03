@@ -11,15 +11,12 @@ import {
   Users,
   ShoppingCart,
   Settings,
-  BarChart3,
   FileText,
   LogOut,
   Menu,
   X,
   User,
   Shield,
-  Activity,
-  TrendingUp,
   Calendar,
   HelpCircle,
   Building2,
@@ -133,13 +130,12 @@ const sidebarItems: (SidebarItem | SidebarGroup)[] = [
 ];
 
 export function Sidebar() {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<string[]>([]);
   const pathname = usePathname();
   const { user, logout } = useAuth();
 
-  const toggleSidebar = () => setIsCollapsed(!isCollapsed);
   const toggleMobileSidebar = () => setIsMobileOpen(!isMobileOpen);
 
   const toggleGroup = (groupTitle: string) => {

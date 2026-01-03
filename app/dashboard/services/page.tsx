@@ -4,12 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -69,8 +64,18 @@ export default function ServicesPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isBulkEditMode, setIsBulkEditMode] = useState(false);
-  const [bulkEditData, setBulkEditData] = useState<Record<string, { price: string; originalPrice: string }>>({});
-  const [formData, setFormData] = useState<any>({
+  const [bulkEditData, setBulkEditData] = useState<
+    Record<string, { price: string; originalPrice: string }>
+  >({});
+  const [formData, setFormData] = useState<{
+    serviceId: string;
+    serviceType: string;
+    name: string;
+    category: string;
+    price: string;
+    originalPrice: string;
+    isActive: boolean;
+  }>({
     serviceId: "",
     serviceType: "",
     name: "",
@@ -114,8 +119,7 @@ export default function ServicesPage() {
           response?: { data?: { message?: string } };
         };
         const errorMessage =
-          axiosError?.response?.data?.message ||
-          "Failed to fetch services";
+          axiosError?.response?.data?.message || "Failed to fetch services";
         setError(errorMessage);
       } finally {
         setLoading(false);
@@ -161,11 +165,15 @@ export default function ServicesPage() {
 
   const handleBulkEdit = () => {
     setIsBulkEditMode(true);
-    const initialData: Record<string, { price: string; originalPrice: string }> = {};
+    const initialData: Record<
+      string,
+      { price: string; originalPrice: string }
+    > = {};
     services.forEach((service) => {
       initialData[service._id] = {
         price: service.price.toString(),
-        originalPrice: service.originalPrice?.toString() || service.price.toString(),
+        originalPrice:
+          service.originalPrice?.toString() || service.price.toString(),
       };
     });
     setBulkEditData(initialData);
@@ -178,7 +186,9 @@ export default function ServicesPage() {
         return {
           serviceId: service?.serviceId || "",
           price: parseFloat(data.price),
-          originalPrice: data.originalPrice ? parseFloat(data.originalPrice) : parseFloat(data.price),
+          originalPrice: data.originalPrice
+            ? parseFloat(data.originalPrice)
+            : parseFloat(data.price),
         };
       });
 
@@ -186,9 +196,14 @@ export default function ServicesPage() {
       setIsBulkEditMode(false);
       setBulkEditData({});
       window.location.reload();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error bulk updating services:", err);
-      alert(err.response?.data?.message || "Failed to update services");
+      const errorMessage =
+        err && typeof err === "object" && "response" in err
+          ? (err as { response?: { data?: { message?: string } } })?.response
+              ?.data?.message
+          : "Failed to update services";
+      alert(errorMessage || "Failed to update services");
     }
   };
 
@@ -196,6 +211,11 @@ export default function ServicesPage() {
     try {
       const serviceData = {
         ...formData,
+        serviceType: formData.serviceType as
+          | "care_center"
+          | "health_mitra"
+          | "health_checkup"
+          | "lab_test",
         price: parseFloat(formData.price),
         originalPrice: formData.originalPrice
           ? parseFloat(formData.originalPrice)
@@ -210,9 +230,14 @@ export default function ServicesPage() {
 
       setIsDialogOpen(false);
       window.location.reload();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error saving service:", err);
-      alert(err.response?.data?.message || "Failed to save service");
+      const errorMessage =
+        err && typeof err === "object" && "response" in err
+          ? (err as { response?: { data?: { message?: string } } })?.response
+              ?.data?.message
+          : "Failed to save service";
+      alert(errorMessage || "Failed to save service");
     }
   };
 
@@ -224,9 +249,14 @@ export default function ServicesPage() {
     try {
       await superAdminAPI.deleteService(id);
       window.location.reload();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error deleting service:", err);
-      alert(err.response?.data?.message || "Failed to delete service");
+      const errorMessage =
+        err && typeof err === "object" && "response" in err
+          ? (err as { response?: { data?: { message?: string } } })?.response
+              ?.data?.message
+          : "Failed to delete service";
+      alert(errorMessage || "Failed to delete service");
     }
   };
 
@@ -234,20 +264,25 @@ export default function ServicesPage() {
     try {
       await superAdminAPI.toggleServiceStatus(id);
       window.location.reload();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error toggling status:", err);
-      alert(err.response?.data?.message || "Failed to update status");
+      const errorMessage =
+        err && typeof err === "object" && "response" in err
+          ? (err as { response?: { data?: { message?: string } } })?.response
+              ?.data?.message
+          : "Failed to update status";
+      alert(errorMessage || "Failed to update status");
     }
   };
 
   if (authLoading) {
     return (
       <DashboardLayout>
-        <div className="p-6">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading...</p>
+        <div className='p-6'>
+          <div className='flex items-center justify-center h-64'>
+            <div className='text-center'>
+              <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4'></div>
+              <p className='text-gray-600'>Loading...</p>
             </div>
           </div>
         </div>
@@ -262,11 +297,11 @@ export default function ServicesPage() {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="p-6">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading services...</p>
+        <div className='p-6'>
+          <div className='flex items-center justify-center h-64'>
+            <div className='text-center'>
+              <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4'></div>
+              <p className='text-gray-600'>Loading services...</p>
             </div>
           </div>
         </div>
@@ -276,33 +311,33 @@ export default function ServicesPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-6">
+      <div className='p-6'>
         <Breadcrumb
           items={[{ label: "Services", href: "/dashboard/services" }]}
-          className="mb-6"
+          className='mb-6'
         />
 
-        <div className="flex justify-between items-center mb-6">
+        <div className='flex justify-between items-center mb-6'>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Services</h1>
-            <p className="text-gray-600 mt-2">
+            <h1 className='text-3xl font-bold text-gray-900'>Services</h1>
+            <p className='text-gray-600 mt-2'>
               Manage individual service pricing (not packages)
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className='flex gap-2'>
             {!isBulkEditMode && (
               <>
                 <Button
                   onClick={handleBulkEdit}
-                  variant="outline"
-                  className="flex items-center space-x-2">
-                  <Edit className="h-4 w-4" />
+                  variant='outline'
+                  className='flex items-center space-x-2'>
+                  <Edit className='h-4 w-4' />
                   <span>Bulk Edit Pricing</span>
                 </Button>
                 <Button
                   onClick={handleCreate}
-                  className="flex items-center space-x-2">
-                  <Plus className="h-4 w-4" />
+                  className='flex items-center space-x-2'>
+                  <Plus className='h-4 w-4' />
                   <span>Create Service</span>
                 </Button>
               </>
@@ -314,11 +349,13 @@ export default function ServicesPage() {
                     setIsBulkEditMode(false);
                     setBulkEditData({});
                   }}
-                  variant="outline">
+                  variant='outline'>
                   Cancel
                 </Button>
-                <Button onClick={handleBulkSave} className="flex items-center space-x-2">
-                  <Save className="h-4 w-4" />
+                <Button
+                  onClick={handleBulkSave}
+                  className='flex items-center space-x-2'>
+                  <Save className='h-4 w-4' />
                   <span>Save All</span>
                 </Button>
               </>
@@ -327,26 +364,26 @@ export default function ServicesPage() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-600">{error}</p>
+          <div className='mb-6 p-4 bg-red-50 border border-red-200 rounded-lg'>
+            <p className='text-red-600'>{error}</p>
           </div>
         )}
 
-        <Card className="mb-6">
+        <Card className='mb-6'>
           <CardHeader>
             <CardTitle>Filters</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               <div>
                 <Label>Search</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <div className='relative'>
+                  <Search className='absolute left-3 top-3 h-4 w-4 text-gray-400' />
                   <Input
-                    placeholder="Search services..."
+                    placeholder='Search services...'
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
+                    className='pl-10'
                   />
                 </div>
               </div>
@@ -355,8 +392,8 @@ export default function ServicesPage() {
                 <select
                   value={serviceTypeFilter}
                   onChange={(e) => setServiceTypeFilter(e.target.value)}
-                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="all">All Types</option>
+                  className='mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'>
+                  <option value='all'>All Types</option>
                   {SERVICE_TYPES.map((type) => (
                     <option key={type.value} value={type.value}>
                       {type.label}
@@ -369,10 +406,10 @@ export default function ServicesPage() {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="all">All Status</option>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
+                  className='mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'>
+                  <option value='all'>All Status</option>
+                  <option value='active'>Active</option>
+                  <option value='inactive'>Inactive</option>
                 </select>
               </div>
             </div>
@@ -384,20 +421,22 @@ export default function ServicesPage() {
             <CardTitle>Services ({totalServices})</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className='space-y-4'>
               {services.map((service) => (
                 <div
                   key={service._id}
-                  className="border rounded-lg p-4 hover:bg-gray-50">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-lg font-semibold">{service.name}</h3>
+                  className='border rounded-lg p-4 hover:bg-gray-50'>
+                  <div className='flex justify-between items-start'>
+                    <div className='flex-1'>
+                      <div className='flex items-center gap-2 mb-2'>
+                        <h3 className='text-lg font-semibold'>
+                          {service.name}
+                        </h3>
                         <Badge
                           variant={service.isActive ? "default" : "secondary"}>
                           {service.isActive ? "Active" : "Inactive"}
                         </Badge>
-                        <Badge variant="outline">
+                        <Badge variant='outline'>
                           {
                             SERVICE_TYPES.find(
                               (t) => t.value === service.serviceType
@@ -405,19 +444,22 @@ export default function ServicesPage() {
                           }
                         </Badge>
                         {service.category && (
-                          <Badge variant="outline">{service.category}</Badge>
+                          <Badge variant='outline'>{service.category}</Badge>
                         )}
                       </div>
-                      <p className="text-gray-500 text-sm mb-2">
+                      <p className='text-gray-500 text-sm mb-2'>
                         ID: {service.serviceId}
                       </p>
                       {isBulkEditMode ? (
-                        <div className="flex items-center gap-4">
-                          <div className="flex items-center gap-2">
-                            <Label className="w-20">Price:</Label>
+                        <div className='flex items-center gap-4'>
+                          <div className='flex items-center gap-2'>
+                            <Label className='w-20'>Price:</Label>
                             <Input
-                              type="number"
-                              value={bulkEditData[service._id]?.price || service.price}
+                              type='number'
+                              value={
+                                bulkEditData[service._id]?.price ||
+                                service.price
+                              }
                               onChange={(e) =>
                                 setBulkEditData({
                                   ...bulkEditData,
@@ -427,14 +469,18 @@ export default function ServicesPage() {
                                   },
                                 })
                               }
-                              className="w-32"
+                              className='w-32'
                             />
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Label className="w-24">Original:</Label>
+                          <div className='flex items-center gap-2'>
+                            <Label className='w-24'>Original:</Label>
                             <Input
-                              type="number"
-                              value={bulkEditData[service._id]?.originalPrice || service.originalPrice || service.price}
+                              type='number'
+                              value={
+                                bulkEditData[service._id]?.originalPrice ||
+                                service.originalPrice ||
+                                service.price
+                              }
                               onChange={(e) =>
                                 setBulkEditData({
                                   ...bulkEditData,
@@ -444,19 +490,19 @@ export default function ServicesPage() {
                                   },
                                 })
                               }
-                              className="w-32"
+                              className='w-32'
                             />
                           </div>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-1">
-                          <IndianRupee className="h-4 w-4" />
-                          <span className="font-semibold text-lg">
+                        <div className='flex items-center gap-1'>
+                          <IndianRupee className='h-4 w-4' />
+                          <span className='font-semibold text-lg'>
                             {service.price}
                           </span>
                           {service.originalPrice &&
                             service.originalPrice > service.price && (
-                              <span className="text-gray-400 line-through ml-2">
+                              <span className='text-gray-400 line-through ml-2'>
                                 {service.originalPrice}
                               </span>
                             )}
@@ -464,29 +510,29 @@ export default function ServicesPage() {
                       )}
                     </div>
                     {!isBulkEditMode && (
-                      <div className="flex gap-2">
+                      <div className='flex gap-2'>
                         <Button
-                          variant="outline"
-                          size="sm"
+                          variant='outline'
+                          size='sm'
                           onClick={() => handleEdit(service)}>
-                          <Edit className="h-4 w-4" />
+                          <Edit className='h-4 w-4' />
                         </Button>
                         <Button
-                          variant="outline"
-                          size="sm"
+                          variant='outline'
+                          size='sm'
                           onClick={() => handleToggleStatus(service._id)}>
                           {service.isActive ? (
-                            <PowerOff className="h-4 w-4" />
+                            <PowerOff className='h-4 w-4' />
                           ) : (
-                            <Power className="h-4 w-4" />
+                            <Power className='h-4 w-4' />
                           )}
                         </Button>
                         <Button
-                          variant="outline"
-                          size="sm"
+                          variant='outline'
+                          size='sm'
                           onClick={() => handleDelete(service._id)}
-                          className="text-red-600 hover:text-red-700">
-                          <Trash2 className="h-4 w-4" />
+                          className='text-red-600 hover:text-red-700'>
+                          <Trash2 className='h-4 w-4' />
                         </Button>
                       </div>
                     )}
@@ -494,9 +540,9 @@ export default function ServicesPage() {
                 </div>
               ))}
               {services.length === 0 && (
-                <div className="text-center py-12">
-                  <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">No services found</p>
+                <div className='text-center py-12'>
+                  <Package className='h-12 w-12 text-gray-400 mx-auto mb-4' />
+                  <p className='text-gray-500'>No services found</p>
                 </div>
               )}
             </div>
@@ -504,7 +550,7 @@ export default function ServicesPage() {
         </Card>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="max-w-lg">
+          <DialogContent className='max-w-lg'>
             <DialogHeader>
               <DialogTitle>
                 {selectedService ? "Edit Service" : "Create Service"}
@@ -515,7 +561,7 @@ export default function ServicesPage() {
                   : "Add a new service with pricing"}
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
+            <div className='grid gap-4 py-4'>
               <div>
                 <Label>Service ID *</Label>
                 <Input
@@ -524,7 +570,7 @@ export default function ServicesPage() {
                     setFormData({ ...formData, serviceId: e.target.value })
                   }
                   disabled={!!selectedService}
-                  placeholder="e.g., cough, diabetes, infant-care"
+                  placeholder='e.g., cough, diabetes, infant-care'
                 />
               </div>
               <div>
@@ -534,8 +580,8 @@ export default function ServicesPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, serviceType: e.target.value })
                   }
-                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="">Select service type</option>
+                  className='mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'>
+                  <option value=''>Select service type</option>
                   {SERVICE_TYPES.map((type) => (
                     <option key={type.value} value={type.value}>
                       {type.label}
@@ -550,7 +596,7 @@ export default function ServicesPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  placeholder="Service name"
+                  placeholder='Service name'
                 />
               </div>
               <div>
@@ -560,38 +606,39 @@ export default function ServicesPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, category: e.target.value })
                   }
-                  placeholder="Optional category"
+                  placeholder='Optional category'
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className='grid grid-cols-2 gap-4'>
                 <div>
                   <Label>Price (₹) *</Label>
                   <Input
-                    type="number"
+                    type='number'
                     value={formData.price}
                     onChange={(e) =>
                       setFormData({ ...formData, price: e.target.value })
                     }
-                    placeholder="0"
+                    placeholder='0'
                   />
                 </div>
                 <div>
                   <Label>Original Price (₹)</Label>
                   <Input
-                    type="number"
+                    type='number'
                     value={formData.originalPrice}
                     onChange={(e) =>
-                      setFormData({ ...formData, originalPrice: e.target.value })
+                      setFormData({
+                        ...formData,
+                        originalPrice: e.target.value,
+                      })
                     }
-                    placeholder="Same as price if not on discount"
+                    placeholder='Same as price if not on discount'
                   />
                 </div>
               </div>
             </div>
             <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setIsDialogOpen(false)}>
+              <Button variant='outline' onClick={() => setIsDialogOpen(false)}>
                 Cancel
               </Button>
               <Button onClick={handleSave}>
@@ -604,4 +651,3 @@ export default function ServicesPage() {
     </DashboardLayout>
   );
 }
-

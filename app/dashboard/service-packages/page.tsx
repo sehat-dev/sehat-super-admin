@@ -7,7 +7,6 @@ import { Breadcrumb } from "@/components/ui/breadcrumb";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -24,7 +23,6 @@ import {
   PowerOff,
   IndianRupee,
 } from "lucide-react";
-import Link from "next/link";
 import { superAdminAPI } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import {
@@ -80,7 +78,23 @@ export default function ServicePackagesPage() {
   const [selectedPackage, setSelectedPackage] = useState<ServicePackage | null>(
     null
   );
-  const [formData, setFormData] = useState<any>({
+  const [formData, setFormData] = useState<{
+    packageId: string;
+    serviceType: string;
+    name: string;
+    description: string;
+    testsIncluded: string;
+    servicesIncluded: string;
+    price: string;
+    originalPrice: string;
+    category: string;
+    subCategory: string;
+    duration: string;
+    preparationInstructions: string;
+    tags: string;
+    popularity: string;
+    isActive: boolean;
+  }>({
     packageId: "",
     serviceType: "",
     name: "",
@@ -199,6 +213,7 @@ export default function ServicePackagesPage() {
     try {
       const packageData = {
         ...formData,
+        serviceType: formData.serviceType as "care_center" | "health_mitra" | "health_checkup" | "lab_test",
         price: parseFloat(formData.price),
         originalPrice:
           parseFloat(formData.originalPrice) || parseFloat(formData.price),
@@ -236,9 +251,12 @@ export default function ServicePackagesPage() {
       setIsDialogOpen(false);
       // Refresh the list
       window.location.reload();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error saving service package:", err);
-      alert(err.response?.data?.message || "Failed to save service package");
+      const errorMessage = err && typeof err === "object" && "response" in err
+        ? (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+        : "Failed to save service package";
+      alert(errorMessage || "Failed to save service package");
     }
   };
 
@@ -250,9 +268,12 @@ export default function ServicePackagesPage() {
     try {
       await superAdminAPI.deleteServicePackage(id);
       window.location.reload();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error deleting service package:", err);
-      alert(err.response?.data?.message || "Failed to delete service package");
+      const errorMessage = err && typeof err === "object" && "response" in err
+        ? (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+        : "Failed to delete service package";
+      alert(errorMessage || "Failed to delete service package");
     }
   };
 
@@ -260,9 +281,12 @@ export default function ServicePackagesPage() {
     try {
       await superAdminAPI.toggleServicePackageStatus(id);
       window.location.reload();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error toggling status:", err);
-      alert(err.response?.data?.message || "Failed to update status");
+      const errorMessage = err && typeof err === "object" && "response" in err
+        ? (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+        : "Failed to update status";
+      alert(errorMessage || "Failed to update status");
     }
   };
 

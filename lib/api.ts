@@ -37,6 +37,69 @@ interface OrganizationUpdateData {
   maxDoctors?: number;
 }
 
+interface CMSContentData {
+  contentType: string;
+  content: unknown[];
+  isActive?: boolean;
+}
+
+interface CMSContentUpdateData {
+  content?: unknown[];
+  isActive?: boolean;
+}
+
+interface ServicePackageData {
+  packageId: string;
+  serviceType: "care_center" | "health_mitra" | "health_checkup" | "lab_test";
+  name: string;
+  description: string;
+  testsIncluded: string[];
+  servicesIncluded: string[];
+  price: number;
+  originalPrice: number;
+  category: string;
+  subCategory?: string;
+  duration?: number;
+  preparationInstructions?: string[];
+  tags?: string[];
+  popularity?: number;
+  isActive?: boolean;
+}
+
+interface ServicePackageUpdateData {
+  name?: string;
+  description?: string;
+  testsIncluded?: string[];
+  servicesIncluded?: string[];
+  price?: number;
+  originalPrice?: number;
+  category?: string;
+  subCategory?: string;
+  duration?: number;
+  preparationInstructions?: string[];
+  tags?: string[];
+  popularity?: number;
+  isActive?: boolean;
+}
+
+interface ServiceData {
+  serviceId: string;
+  serviceType: "care_center" | "health_mitra" | "health_checkup" | "lab_test";
+  name: string;
+  category?: string;
+  price: number;
+  originalPrice?: number;
+  isActive?: boolean;
+}
+
+interface ServiceUpdateData {
+  name?: string;
+  category?: string;
+  price?: number;
+  originalPrice?: number;
+  isActive?: boolean;
+}
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -300,12 +363,12 @@ export const superAdminAPI = {
     return response.data;
   },
 
-  createCMSContent: async (contentData: any) => {
+  createCMSContent: async (contentData: CMSContentData) => {
     const response = await api.post("/superadmin/cms", contentData);
     return response.data;
   },
 
-  updateCMSContent: async (id: string, updateData: any) => {
+  updateCMSContent: async (id: string, updateData: CMSContentUpdateData) => {
     const response = await api.patch(`/superadmin/cms/${id}`, updateData);
     return response.data;
   },
@@ -333,12 +396,12 @@ export const superAdminAPI = {
     return response.data;
   },
 
-  createServicePackage: async (packageData: any) => {
+  createServicePackage: async (packageData: ServicePackageData) => {
     const response = await api.post("/superadmin/service-packages", packageData);
     return response.data;
   },
 
-  updateServicePackage: async (id: string, updateData: any) => {
+  updateServicePackage: async (id: string, updateData: ServicePackageUpdateData) => {
     const response = await api.put(`/superadmin/service-packages/${id}`, updateData);
     return response.data;
   },
@@ -371,12 +434,12 @@ export const superAdminAPI = {
     return response.data;
   },
 
-  createService: async (serviceData: any) => {
+  createService: async (serviceData: ServiceData) => {
     const response = await api.post("/superadmin/services", serviceData);
     return response.data;
   },
 
-  updateService: async (id: string, updateData: any) => {
+  updateService: async (id: string, updateData: ServiceUpdateData) => {
     const response = await api.put(`/superadmin/services/${id}`, updateData);
     return response.data;
   },

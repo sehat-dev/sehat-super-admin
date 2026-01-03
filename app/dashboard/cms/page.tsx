@@ -35,7 +35,7 @@ type ContentType =
 interface CMSContent {
   _id: string;
   contentType: ContentType;
-  content: any[]; // Array of items matching local structure
+  content: unknown[]; // Array of items matching local structure
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -63,7 +63,9 @@ const CONTENT_TYPES: { value: ContentType; label: string }[] = [
 export default function CMSPage() {
   const [contents, setContents] = useState<CMSContent[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedContent, setSelectedContent] = useState<CMSContent | null>(null);
+  const [selectedContent, setSelectedContent] = useState<CMSContent | null>(
+    null
+  );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [jsonContent, setJsonContent] = useState("");
   const [jsonError, setJsonError] = useState<string | null>(null);
@@ -118,8 +120,10 @@ export default function CMSPage() {
       }
       setJsonError(null);
       return true;
-    } catch (error: any) {
-      setJsonError(`Invalid JSON: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Invalid JSON";
+      setJsonError(`Invalid JSON: ${errorMessage}`);
       return false;
     }
   };
@@ -149,9 +153,11 @@ export default function CMSPage() {
       }
       setIsDialogOpen(false);
       fetchContents();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error saving content:", error);
-      alert(`Failed to save content: ${error.message}`);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      alert(`Failed to save content: ${errorMessage}`);
     }
   };
 
@@ -179,8 +185,8 @@ export default function CMSPage() {
           <div>
             <h1 className='text-3xl font-bold'>CMS Management</h1>
             <p className='text-gray-600 mt-1'>
-              Manage content arrays for each section. Edit JSON arrays that match
-              local data structure.
+              Manage content arrays for each section. Edit JSON arrays that
+              match local data structure.
             </p>
           </div>
           <Button variant='outline' onClick={fetchContents}>
@@ -202,11 +208,15 @@ export default function CMSPage() {
                   <CardHeader>
                     <div className='flex items-start justify-between'>
                       <div className='flex-1'>
-                        <CardTitle className='text-lg mb-2'>{type.label}</CardTitle>
+                        <CardTitle className='text-lg mb-2'>
+                          {type.label}
+                        </CardTitle>
                         <div className='flex items-center gap-2'>
                           {content && (
                             <Badge
-                              variant={content.isActive ? "default" : "secondary"}>
+                              variant={
+                                content.isActive ? "default" : "secondary"
+                              }>
                               {content.isActive ? "Active" : "Inactive"}
                             </Badge>
                           )}
@@ -221,7 +231,10 @@ export default function CMSPage() {
                     <div className='space-y-2'>
                       {content && (
                         <div className='text-sm text-gray-600'>
-                          <p>Last updated: {new Date(content.updatedAt).toLocaleDateString()}</p>
+                          <p>
+                            Last updated:{" "}
+                            {new Date(content.updatedAt).toLocaleDateString()}
+                          </p>
                         </div>
                       )}
                       <div className='flex gap-2'>
@@ -247,7 +260,9 @@ export default function CMSPage() {
                           variant='outline'
                           size='sm'
                           onClick={() =>
-                            content ? handleEdit(content) : handleCreate(type.value)
+                            content
+                              ? handleEdit(content)
+                              : handleCreate(type.value)
                           }
                           className='flex-1'>
                           {content ? "Edit" : "Create"}
@@ -266,12 +281,20 @@ export default function CMSPage() {
             <DialogHeader>
               <DialogTitle>
                 {selectedContent?._id
-                  ? `Edit ${CONTENT_TYPES.find((t) => t.value === selectedContent?.contentType)?.label}`
-                  : `Create ${CONTENT_TYPES.find((t) => t.value === selectedContent?.contentType)?.label}`}
+                  ? `Edit ${
+                      CONTENT_TYPES.find(
+                        (t) => t.value === selectedContent?.contentType
+                      )?.label
+                    }`
+                  : `Create ${
+                      CONTENT_TYPES.find(
+                        (t) => t.value === selectedContent?.contentType
+                      )?.label
+                    }`}
               </DialogTitle>
               <DialogDescription>
-                Edit the JSON array content. The array should match the local data
-                structure exactly.
+                Edit the JSON array content. The array should match the local
+                data structure exactly.
               </DialogDescription>
             </DialogHeader>
             <div className='space-y-4'>
@@ -301,8 +324,8 @@ export default function CMSPage() {
                   className='font-mono text-sm'
                 />
                 <p className='text-xs text-gray-500 mt-1'>
-                  Enter a valid JSON array. Each item in the array should match the
-                  structure used in the app.
+                  Enter a valid JSON array. Each item in the array should match
+                  the structure used in the app.
                 </p>
               </div>
               {selectedContent && (

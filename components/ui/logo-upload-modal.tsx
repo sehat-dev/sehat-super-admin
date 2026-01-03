@@ -115,6 +115,7 @@ export function LogoUploadModal({ isOpen, onClose, onLogoSelected, currentLogo }
             <div className="text-center">
               <Label className="text-sm font-medium text-gray-700 mb-2 block">Current Logo</Label>
               <div className="relative inline-block">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
                   src={currentLogo} 
                   alt="Current logo" 
@@ -175,6 +176,7 @@ export function LogoUploadModal({ isOpen, onClose, onLogoSelected, currentLogo }
             <div className="text-center">
               <Label className="text-sm font-medium text-gray-700 mb-2 block">Logo Preview</Label>
               <div className="relative inline-block">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
                   src={previewUrl} 
                   alt="Logo preview" 
